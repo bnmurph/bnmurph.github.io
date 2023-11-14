@@ -41,14 +41,14 @@ d3.csv("trying_something_4.csv").then(
                 .enter()
                 .append("circle")
                 .on('mouseover', function(){
-                        d3.select(this).attr('stroke', 'black')
-                                       .attr('stroke-width', 1)
+                        d3.select(this).style('stroke', 'black')
+                                       .style('stroke-width', 1)
                 })
                 .on('mouseout', function(){
-                        d3.select(this).attr('stroke-width', 0)
+                        d3.select(this).style('stroke-width', 0)
                 })
                 .on('click', function(){
-                        //highlight this, unhighlight others
+                        //highlight this, unhighlight others (?) or just leave the stroke-width as 1
                         //filter if not filtered
                         //unfilter if filtered
                 })
