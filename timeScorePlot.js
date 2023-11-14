@@ -33,7 +33,7 @@ d3.csv("trying_something_4.csv").then(
                 .domain(d3.map(dataset, score_buckets))
                 .range([dimensions.height - dimensions.margin.bottom, dimensions.height - dimensions.margin.bottom - 2*11*dimensions.circle_radius])
         
-        const color = d3.scaleDiverging([0,0.5,1],["blue", "gray","red"])
+        const color = d3.scaleDiverging([0,0.5,1],["blue", "white","red"])
 
         var circles = svg.append("g")
                 .selectAll("circle")
