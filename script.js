@@ -58,6 +58,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                           .attr("r", 3)
                           .attr("cy", d => yScaleDeepPass(yAccessor(d)))
                           .attr("fill", "yellow")
+                          .attr("opacity", '0.3')
         
         var shortDots = svg.append("g")
                            .selectAll("circle")
@@ -68,6 +69,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                            .attr("r", 3)
                            .attr("cy", d => yScaleShortPass(yAccessor(d)))
                            .attr("fill", "blue")
+                           .attr("opacity", '0.3')
 
         var runDots = svg.append("g")
                          .selectAll("circle")
@@ -78,6 +80,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                          .attr("r", 3)
                          .attr("cy", d => yScaleRun(yAccessor(d)))
                          .attr("fill", "black")
+                         .attr("opacity", '0.3')
 
         var center = svg.append("line")
                         .attr("x1", xScale(0.5))
