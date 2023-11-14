@@ -40,6 +40,18 @@ d3.csv("trying_something_4.csv").then(
                 .data(dataset)
                 .enter()
                 .append("circle")
+                .on('mouseover', function(){
+                        d3.select(this).attr('stroke', 'black')
+                                       .attr('stroke-width', 1)
+                })
+                .on('mouseout', function(){
+                        d3.select(this).attr('stroke-width', 0)
+                })
+                .on('click', function(){
+                        //highlight this, unhighlight others
+                        //filter if not filtered
+                        //unfilter if filtered
+                })
                 .attr("cx", d => xScale(min_remaining(d)))
                 .attr("cy", d => yScale(score_buckets(d)))
                 .attr("r", dimensions.circle_radius)
