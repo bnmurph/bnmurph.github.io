@@ -27,7 +27,7 @@ d3.csv("trying_something_4.csv").then(
 
         var xScale = d3.scaleBand()
                 .domain(d3.map(dataset, min_remaining))
-                .range([dimensions.margin.left, dimensions.margin.left + 31*2*dimensions.circle_radius])
+                .range([dimensions.margin.left + 31*2*dimensions.circle_radius, dimensions.margin.left])
 
         var yScale = d3.scaleBand()
                 .domain(d3.map(dataset, score_buckets))
@@ -84,5 +84,9 @@ d3.csv("trying_something_4.csv").then(
                 .style("text_anchor", "middle")
                 .text("Score Differential")
 
+
+
+
     }
 )
+

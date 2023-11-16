@@ -1,12 +1,14 @@
+
 d3.csv("trying_something_2.csv").then(
     function(dataset){
-        //console.log(dataset)
 
 		var alpha = d3.scaleLinear().domain([0, 100]).range([0, 1]);
 
 		var headerLabel = ['Yards to Go', 'First Down', 'Second Down', 'Third Down', 'Fourth Down'];
 
 		var colLabel = ['ydstogo_buckets', 'Down1', 'Down2', 'Down3', 'Down4'];
+
+		const color = d3.scaleDiverging([0,0.5,1],["blue", "white","red"])
 
 		
 		function tabulate(dataset, columns, label) {
@@ -49,7 +51,8 @@ d3.csv("trying_something_2.csv").then(
 				// 	return d.value; 
 				// })
 				.style('background-color', function (d) {
-					return 'rgba(' +255 + ',' +0 + ',' +0 + ',' + alpha(d.value) + ')';
+					console.log(alpha(d.value));
+					return color(alpha(d.value));
 				})			
 			
 		  return table;
