@@ -15,6 +15,9 @@ d3.csv("2018-2022_nflfastR_clean.csv").then(
                 for (i of x[1]){
                         sum += +i.pass
                 }
+                console.log("Pass: "+ x[1].pass + ", " + (+x[1].pass))
+                console.log("Sum: " + sum)
+                console.log(x[1].length)
                 x[1] = sum / x[1].length
                 console.log(x[0] + ", " + x[1])
 

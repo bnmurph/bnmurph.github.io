@@ -51,7 +51,6 @@ d3.csv("trying_something_2.csv").then(
 				// 	return d.value; 
 				// })
 				.style('background-color', function (d) {
-					console.log(alpha(d.value));
 					return color(alpha(d.value));
 				})			
 			
