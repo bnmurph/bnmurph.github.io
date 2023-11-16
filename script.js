@@ -10,16 +10,8 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                 left:100
             }
         }
-        
-        /*
-            LEFT TO DO
 
-            1. Make color scale
-            2. Change shapes? Maybe?
-            3. Adjust margins and dimensions
-            4. Lil picture guys
-            
-        */
+        var deepData = dataset.filter(function(d){})
 
         var scatter_dimensions = {
             width: svg_dimensions.width - svg_dimensions.margin.left - svg_dimensions.margin.right,
@@ -27,7 +19,12 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         }
 
         var xAccessor = d => d.xpass
-        var yAccessor = d => d.epa
+        var yAccessor = function(d){
+            if (d.new_play_type === 'deep pass') {return (+d.epa + 56);}
+            else if (d.new_play_type === 'short pass') {return (+d.epa + 28);}
+            else if (d.new_play_type === 'run') {return +d.epa;}
+        }
+        var teamAccessor = d => d.posteam
 
         var svg = d3.select('#success')
                     .style("width", svg_dimensions.width)
@@ -36,6 +33,58 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         var xScale = d3.scaleLinear()
                        .domain([0,1])
                        .range([svg_dimensions.margin.left,svg_dimensions.margin.left+scatter_dimensions.width])
+
+        var yScale = d3.scaleLinear()
+                       .domain([70,-14])
+                       .range([svg_dimensions.margin.top, svg_dimensions.height - svg_dimensions.margin.bottom])
+
+        var dots = svg.append("g")
+                        .selectAll("circle")
+                        .data(dataset)
+                        .enter()
+                        .append("circle")
+                        .attr("cx", d => xScale(xAccessor(d)))
+                        .attr("r", 3)
+                        .attr("cy", d => yScale(yAccessor(d)))
+                        .attr("fill", "yellow")
+                        .attr("opacity", '0.2')
+        
+        var logos = ['ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
+                    'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC', 'LA',
+                    'LAC', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG', 'NYJ', 'PHI',
+                    'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WAS']
+        
+        /*
+            ISSUES:
+            1. Border doesn't stay when clicked
+            2. Can't get it to go back to full dataset
+            3. Can't select multiple
+        */
+        logos.forEach(logo => {
+            var img = d3.select('#pictures')
+                        .append("img")
+                        .attr("src", "./logos/"+logo+".png")
+                        .attr("class", "logo")
+                        .attr("width", 46)
+                        .attr("height", 46)
+                        .on("click", function(){
+                            d3.select(this).style('border', '2px solid black');
+                            
+                            dots.filter(d => teamAccessor(d) != logo)
+                                .attr("r", 0)
+                        })
+                        .on('mouseover', function(){
+                            d3.select(this).style('border', '2px solid black')
+                        })
+                        .on('mouseout', function(){
+                            d3.select(this).style('border', 'none')
+                        });
+        })
+
+
+        /*
+            BELOW ARE ONLY LINES AND AXES
+        */
 
         var yScaleDeepPass = d3.scaleLinear()
                                .domain([14,-14])
@@ -48,39 +97,6 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         var yScaleRun = d3.scaleLinear()
                           .domain([14,-14])
                           .range([svg_dimensions.margin.top + 2 * scatter_dimensions.height, svg_dimensions.margin.top + 3 * scatter_dimensions.height])
-
-        var deepDots = svg.append("g")
-                          .selectAll("circle")
-                          .data(dataset.filter(function(d) {return d.new_play_type == "deep pass"}))
-                          .enter()
-                          .append("circle")
-                          .attr("cx", d => xScale(xAccessor(d)))
-                          .attr("r", 3)
-                          .attr("cy", d => yScaleDeepPass(yAccessor(d)))
-                          .attr("fill", "yellow")
-                          .attr("opacity", '0.2')
-        
-        var shortDots = svg.append("g")
-                           .selectAll("circle")
-                           .data(dataset.filter(function(d) {return d.new_play_type == "short pass"}))
-                           .enter()
-                           .append("circle")
-                           .attr("cx", d => xScale(xAccessor(d)))
-                           .attr("r", 3)
-                           .attr("cy", d => yScaleShortPass(yAccessor(d)))
-                           .attr("fill", "blue")
-                           .attr("opacity", '0.2')
-
-        var runDots = svg.append("g")
-                         .selectAll("circle")
-                         .data(dataset.filter(function(d) {return d.new_play_type == "run"}))
-                         .enter()
-                         .append("circle")
-                         .attr("cx", d => xScale(xAccessor(d)))
-                         .attr("r", 3)
-                         .attr("cy", d => yScaleRun(yAccessor(d)))
-                         .attr("fill", "black")
-                         .attr("opacity", '0.2')
 
         var center = svg.append("line")
                         .attr("x1", xScale(0.5))
@@ -202,50 +218,9 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                          .attr("font-size", "14px")
                          .text("Run")
                          .attr("fill", "gray")
-        
-        var logos = ['ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
-                    'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC', 'LA',
-                    'LAC', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG', 'NYJ', 'PHI',
-                    'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WAS']
-        
-        logos.forEach(logo => {
-            var img = d3.select('#pictures')
-                        .append("img")
-                        .attr("src", "./logos/"+logo+".png")
-                        .attr("class", "logo")
-                        .attr("width", 46)
-                        .attr("height", 46)
-                        .on('mouseover', function(){
-                            d3.select(this).style('border', '2px solid black')
-                        })
-                        .on('mouseout', function(){
-                            d3.select(this).style('border', 'none')
-                        })
-                        .on("click", function(){
-                            filterData(logo, "logo");
-                            d3.select(this).style('border', '2px solid black');
-                        });
-        })
 
-        //make this work FASTER
-        function filterData(filter, type) {
-            if (type == "logo") {
-                deepDots.selectAll("circle")
-                        .data(dataset.filter(function(d) {return d.new_play_type == "deep pass"}))
-                        .enter()
-                        .append("circle")
-                        .filter(function(d) {return d.posteam == filter})
-                shortDots.selectAll("circle")
-                        .data(dataset.filter(function(d) {return d.new_play_type == "short pass"}))
-                        .enter()
-                        .append("circle")
-                        .filter(function(d) {return d.posteam == filter})
-                runDots.selectAll("circle")
-                        .data(dataset.filter(function(d) {return d.new_play_type == "run"}))
-                        .enter()
-                        .append("circle")
-                        .filter(function(d) {return d.posteam == filter})
-            }
-        } 
     }
 )
+
+
+
