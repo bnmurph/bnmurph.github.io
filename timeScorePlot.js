@@ -52,6 +52,7 @@ d3.csv("trying_something_4.csv").then(
                 .on('mouseout', function(){
                         if (d3.select(this).datum().selected == false) { d3.select(this).style('stroke-width', 0); }
                 })
+                //this is from https://octoperf.com/blog/2018/04/17/d3-js-mouse-events-and-transitions-tutorial/#how-to-bind-data-using-d3datum
                 .on('click', function(){
                         //maybe this??? idk
                         if (!d3.select(this).datum().selected) {

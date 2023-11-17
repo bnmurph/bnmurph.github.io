@@ -131,10 +131,12 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         .on('mouseover', function(){
                             //if (d3.select(this).datum().selected == false) { d3.select(this).style('border', '2px solid black'); }
                             if (!logoSelected) { d3.select(this).style('border', '2px solid black'); }
+                            else { d3.select(this).style('border', 'none'); }
                         })
                         .on('mouseout', function(){
                             //if (d3.select(this).datum().selected == false) { d3.select(this).style('border', 'none'); }
                             if (!logoSelected) { d3.select(this).style('border', 'none'); }
+                            else { d3.select(this).style('border', '2px solid black'); }
                         });
         })
 
