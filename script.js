@@ -38,7 +38,6 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
 
          
         var colorWay = function(d,team){
-            console.log(team == 'BAL')
             if (team == 'BAL') {if (+d.epa >= 0) {return '#241773'} else {return '#000000'}}
             else if (team == 'CIN') {if (+d.epa >= 0) {return '#FB4F14'} else {return '#000000'}}
             else if (team == 'CLE') {if (+d.epa >= 0) {return '#311D00'} else {return '#FF3C00'}}
