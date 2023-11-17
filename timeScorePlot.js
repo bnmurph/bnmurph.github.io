@@ -40,22 +40,38 @@ d3.csv("trying_something_4.csv").then(
                 .data(dataset)
                 .enter()
                 .append("circle")
-                .on('mouseover', function(){
-                        d3.select(this).style('stroke', 'black')
-                                       .style('stroke-width', 1)
-                })
-                .on('mouseout', function(){
-                        d3.select(this).style('stroke-width', 0)
-                })
-                .on('click', function(){
-                        //highlight this, unhighlight others (?) or just leave the stroke-width as 1
-                        //filter if not filtered
-                        //unfilter if filtered
-                })
                 .attr("cx", d => xScale(min_remaining(d)))
                 .attr("cy", d => yScale(score_buckets(d)))
                 .attr("r", dimensions.circle_radius)
                 .attr("fill", d=>color(percent_pass(d)))
+                .datum({selected:false})
+                .on('mouseover', function(){
+                        if (d3.select(this).datum().selected == false) { d3.select(this).style('stroke', 'black')
+                                                                                        .style('stroke-width', 1.5); }
+                })
+                .on('mouseout', function(){
+                        if (d3.select(this).datum().selected == false) { d3.select(this).style('stroke-width', 0); }
+                })
+                //this is from https://octoperf.com/blog/2018/04/17/d3-js-mouse-events-and-transitions-tutorial/#how-to-bind-data-using-d3datum
+                .on('click', function(){
+                        //maybe this??? idk
+                        if (!d3.select(this).datum().selected) {
+                                // dots.filter(function(d){
+                                //         return (d.half_minutes_remaining != this.half_minutes_remaining || d.score_differential_buckets != this.score_differential_buckets)
+                                // }).attr('r', 0);
+                                d3.select(this).style('stroke-width', 1.5)
+                                               .style('stroke', 'black');
+                                d3.select(this).datum({selected:true});
+                        }
+                        else {
+                                //dots.attr('r', 3);
+                                d3.select(this).style('stroke-width', 0);
+                                d3.select(this).datum({selected:false});
+                        }
+                        //highlight this, unhighlight others (?) or just leave the stroke-width as 1
+                        //filter if not filtered
+                        //unfilter if filtered
+                })
 
         var xAxisGen = d3.axisBottom().scale(xScale)
                 .tickValues(xScale.domain().filter(function(d,i){return !(i%2)}))
