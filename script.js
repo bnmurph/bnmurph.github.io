@@ -109,33 +109,35 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         .attr("height", 46)
                         .datum({selected: false})
                         .on("click", function(){
-                            //if (d3.select(this).datum().selected == false) {
-                            if (!logoSelected) {
+                            if (d3.select(this).datum().selected == false) {
                                 d3.select(this).style('border', '2px solid black');
+                                dots.attr("r",3);
+                                d3.selectAll("img").datum({selected:false});
+                                d3.selectAll("img").style('border', 'none');
                                 dots.filter(d => teamAccessor(d) != logo)
                                     .attr("r", 0);
                                 dots.filter(d => teamAccessor(d) == logo)
                                     .attr("fill", d => colorWay(d,logo));
-                                //d3.select(this).datum({selected:true});
+                                d3.select(this).datum({selected:true});
                                 logoSelected = true;
                             }
                             else {
                                 d3.select(this).style('border', 'none');
                                 dots.attr('r', 3)
                                     .attr("fill", d => colorWay(d,'none'))
-                                //d3.select(this).datum({selected:false})
+                                d3.select(this).datum({selected:false})
                                 logoSelected = false;
                             }
                             
                         })
                         .on('mouseover', function(){
-                            //if (d3.select(this).datum().selected == false) { d3.select(this).style('border', '2px solid black'); }
                             if (!logoSelected) { d3.select(this).style('border', '2px solid black'); }
+                            else if (d3.select(this).datum().selected == false) { d3.select(this).style('border', '2px solid black'); }
                             else { d3.select(this).style('border', 'none'); }
                         })
                         .on('mouseout', function(){
-                            //if (d3.select(this).datum().selected == false) { d3.select(this).style('border', 'none'); }
-                            if (!logoSelected) { d3.select(this).style('border', 'none'); }
+                            if (!logoSelected ) { d3.select(this).style('border', 'none'); }
+                            else if (d3.select(this).datum().selected == false) { d3.select(this).style('border', 'none'); }
                             else { d3.select(this).style('border', '2px solid black'); }
                         });
         })
