@@ -133,7 +133,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         .on('mouseover', function(){
                             if (!logoSelected) { d3.select(this).style('border', '2px solid black'); }
                             else if (d3.select(this).datum().selected == false) { d3.select(this).style('border', '2px solid black'); }
-                            else { d3.select(this).style('border', '2px solid black'); }
+                            else { d3.select(this).style('border', 'none'); }
                         })
                         .on('mouseout', function(){
                             if (!logoSelected ) { d3.select(this).style('border', 'none'); }
