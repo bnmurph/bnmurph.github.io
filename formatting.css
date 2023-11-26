@@ -1,11 +1,11 @@
-.flex-container {
+#flex_container {
   display: flex;
-  align-content: flex-end;
+  flex-direction: row;
+  justify-content: center;
 }
 
 h1 {
-  margin-block-start: 0.8em;
-  margin-block-end: 0.45em;
+
   text-align: center;
   margin-top:0px
 }
@@ -21,29 +21,18 @@ html {
 }
 
 #subcontainer{
+  display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 150%;
-  margin:20px;
 
 }
 
 #success{
-  width: 100%;
   height: 450px;
   margin-bottom: 0px;
 
 }
 
-#downs{
-  width: 100%;
-  height: 800px;
-  margin: 20px;
-  margin-left: 0px;
-  margin-top:0px;
-
-}
-
 #pictures{
-  height: 70px
+  height: 50px
 }

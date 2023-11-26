@@ -1,8 +1,8 @@
 d3.csv('2018-2022_nflfastR_clean.csv').then(
     function(dataset) {
         var svg_dimensions = {
-            width: 900,
-            height: 500,
+            width: 700,
+            height: 775,
             margin:{
                 top:10,
                 bottom:50,

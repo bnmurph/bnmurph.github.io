@@ -9,7 +9,7 @@ d3.csv("2018-2022_nflfastR_clean.csv").then(
         console.log(moose)
 
         var dimensions={
-            width: 900,
+            width: 800,
             height: 270,
             margin: {
                 top: 5,
@@ -38,7 +38,7 @@ d3.csv("2018-2022_nflfastR_clean.csv").then(
         
         const color = d3.scaleDiverging([0,0.5,1],["blue", "white","red"])
 
-        var circles = svg.append("g")
+        var rectangles = svg.append("g")
                 .selectAll("rect")
                 .data(moose)
                 .enter()

@@ -2,8 +2,8 @@ d3.csv("trying_something_2.csv").then(
     function(dataset){
         //console.log(dataset)
 
-		var dimensions={
-            width: 750,
+	var dimensions={
+            width: 800,
             height: 270,
             margin: {
                 top: 15,
@@ -58,6 +58,8 @@ d3.csv("trying_something_2.csv").then(
                 .attr("height", dimensions.rectLength)
                 .attr("width", dimensions.rectLength)
                 .attr("fill", d=>color(down1(d)))
+                .attr("stroke-width", 1)
+                .attr("stroke", "white")
                 .enter()
 
         //down 2 (second row)
@@ -71,6 +73,8 @@ d3.csv("trying_something_2.csv").then(
                 .attr("height", dimensions.rectLength)
                 .attr("width", dimensions.rectLength)
                 .attr("fill", d=>color(down2(d)))
+                .attr("stroke-width", 1)
+                .attr("stroke", "white")
 
         //down 3 (third row)
         var rects3 = svg.append("g")
@@ -83,6 +87,8 @@ d3.csv("trying_something_2.csv").then(
                 .attr("height", dimensions.rectLength)
                 .attr("width", dimensions.rectLength)
                 .attr("fill", d=>color(down3(d)))
+                .attr("stroke-width", 1)
+                .attr("stroke", "white")
 
         //down 4 (fourth row)
         var rects2 = svg.append("g")
@@ -95,6 +101,8 @@ d3.csv("trying_something_2.csv").then(
                 .attr("height", dimensions.rectLength)
                 .attr("width", dimensions.rectLength)
                 .attr("fill", d=>color(down4(d)))
+                .attr("stroke-width", 1)
+                .attr("stroke", "white")
 
         var xTitle = svg.append("text")
                 .attr("x", (dimensions.width-dimensions.margin.left)/2)
