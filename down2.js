@@ -5,9 +5,8 @@ d3.csv("2018-2022_nflfastR_clean.csv").then(
 
         reduced_data = d3.flatRollup(dataset, i => d3.sum(i, k => k.pass)/i.length, d=>d.down, d=>d.ydstogo_buckets)
         reduced_data.splice(56, 1)
-        console.log(reduced_data)
 
-        var dimensions={
+        var downDimensions={
             width: 750,
             height: 270,
             margin: {
@@ -24,25 +23,25 @@ d3.csv("2018-2022_nflfastR_clean.csv").then(
         var percent_pass = i => +i[2]
         var downsLabel = ['1st Down', '2nd Down', '3rd Down', '4th Down']
 
-        var svg = d3.select("#downs")
-                    .style("width", dimensions.width)
-                    .style("height", dimensions.height)
+        var downs_svg = d3.select("#downs")
+                    .style("width", downDimensions.width)
+                    .style("height", downDimensions.height)
 
         var ydsLabel = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11-15', '16-20', '21-25', '26+'];
 
         //build x axis
-        var xScale = d3.scalePoint()
+        var xScaleDowns = d3.scalePoint()
                 .domain(ydsLabel)
-                .range([dimensions.margin.left, dimensions.margin.left + 13*dimensions.rectLength+13])
+                .range([downDimensions.margin.left, downDimensions.margin.left + 13*downDimensions.rectLength+13])
                
         //build y axis
-        var yScale = d3.scaleLinear()
+        var yScaleDowns = d3.scaleLinear()
                 .domain(d3.extent(reduced_data, downs))
-                .range([dimensions.height - dimensions.margin.bottom - 5*dimensions.rectLength-3, dimensions.height-dimensions.margin.bottom-2*dimensions.rectLength])
+                .range([downDimensions.height - downDimensions.margin.bottom - 5*downDimensions.rectLength-3, downDimensions.height-downDimensions.margin.bottom-2*downDimensions.rectLength])
                 
         const color = d3.scaleDiverging([0,0.5,1],["blue", "white","red"])           
 
-        var rects = svg.append("g")
+        var rectsDowns = downs_svg.append("g")
                 .selectAll("rect")
                 .data(reduced_data)
                 .enter()
@@ -54,46 +53,46 @@ d3.csv("2018-2022_nflfastR_clean.csv").then(
                 .on('mouseout', function(){
                         d3.select(this).style('stroke-width', 0)
                 })
-                .attr("y", d => yScale(downs(d)))
-                .attr("x", d => xScale(ydstogo(d))) 
-                .attr("height", dimensions.rectLength)
-                .attr("width", dimensions.rectLength)
+                .attr("y", d => yScaleDowns(downs(d)))
+                .attr("x", d => xScaleDowns(ydstogo(d))) 
+                .attr("height", downDimensions.rectLength)
+                .attr("width", downDimensions.rectLength)
                 .attr("fill", d=>color(percent_pass(d)))
                 //.attr("stroke-width", 1)
                 //.attr("stroke", "white")
 
-        var xTitle = svg.append("text")
-                .attr("x", (dimensions.width-dimensions.margin.left)/2)
-                .attr("y", dimensions.height-30)
+        var xTitleDowns = downs_svg.append("text")
+                .attr("x", (downDimensions.width-downDimensions.margin.left)/2)
+                .attr("y", downDimensions.height-30)
                 .style("text_anchor", "middle")
                 .text("Yards to go")
         
-        // var yTitle = svg.append("text")
+        // var yTitle = downs_svg.append("text")
         //         .attr("transform", "rotate(-90)")
-        //         .attr("y", dimensions.margin.left/4)
-        //         .attr("x", -2*dimensions.height / 4 )
+        //         .attr("y", downDimensions.margin.left/4)
+        //         .attr("x", -2*downDimensions.height / 4 )
         //         .style("text_anchor", "middle")
         //         .text("Down")
 
-        var xAxisGen = d3.axisBottom().scale(xScale)
-                .tickValues(xScale.domain())
+        var xAxisGenDowns = d3.axisBottom().scale(xScaleDowns)
+                .tickValues(xScaleDowns.domain())
 
-        var xAxis = svg.append("g")
-                .call(xAxisGen)
-                .style("transform", `translate(${dimensions.rectLength/2}px, ${dimensions.height-dimensions.margin.bottom-dimensions.rectLength}px)`)
+        var xAxisDowns = downs_svg.append("g")
+                .call(xAxisGenDowns)
+                .style("transform", `translate(${downDimensions.rectLength/2}px, ${downDimensions.height-downDimensions.margin.bottom-downDimensions.rectLength}px)`)
 
-        var newScale = d3.scaleBand()
+        var newScaleDowns = d3.scaleBand()
         .domain(downsLabel)
-        .range([dimensions.height - dimensions.margin.bottom - 4*dimensions.rectLength, dimensions.height - dimensions.margin.bottom])
+        .range([downDimensions.height - downDimensions.margin.bottom - 4*downDimensions.rectLength, downDimensions.height - downDimensions.margin.bottom])
 
-        var yAxisGen = d3.axisLeft().scale(newScale)
+        var yAxisGenDowns = d3.axisLeft().scale(newScaleDowns)
 
-        var yAxis = svg.append("g")
-                .call(yAxisGen)
-                .style("transform", `translate(${dimensions.margin.left}px, ${-dimensions.rectLength}px)`)
+        var yAxisDowns = downs_svg.append("g")
+                .call(yAxisGenDowns)
+                .style("transform", `translate(${downDimensions.margin.left}px, ${-downDimensions.rectLength}px)`)
 
         //build color legend
-        //code from: https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-svg-gradient/
+        //code from: https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-downs_svg-gradient/
         //Append a defs element to your SVG
         var keysvg = d3.select("#legend")
                     .style("width", 750)
