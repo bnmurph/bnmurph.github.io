@@ -104,6 +104,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         */
 
         var logoSelected = false;
+        var teamSelected = "none"
 
         logos.forEach(logo => {
             var img = d3.select('#pictures')
@@ -118,6 +119,8 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                 d3.select(this).style('border', '2px solid black');
                                 dots.attr("r",3);
                                 d3.selectAll("img").datum({selected:false});
+                                d3.selectAll("rect").style('stroke-width', 0);
+                                selectedTime.clear();
                                 d3.selectAll("img").style('border', 'none');
                                 dots.filter(d => teamAccessor(d) != logo)
                                     .attr("r", 0);
@@ -125,6 +128,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                     .attr("fill", d => colorWay(d,logo));
                                 d3.select(this).datum({selected:true});
                                 logoSelected = true;
+                                teamSelected = logo;
                             }
                             else {
                                 d3.select(this).style('border', 'none');
@@ -132,6 +136,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                     .attr("fill", d => colorWay(d,'none'))
                                 d3.select(this).datum({selected:false})
                                 logoSelected = false;
+                                teamSelected = "none"
                             }
                             
                         })
@@ -184,19 +189,87 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         
         const color = d3.scaleDiverging([0,0.5,1],["blue", "white","red"])
 
+        var selectedTime = new Set();
+
         var rectanglesTime = svgTime.append("g")
                 .selectAll("rect")
                 .data(moose)
                 .enter()
                 .append("rect")
-                .on('mouseover', function(){
+                .on('mouseover', function(event,d){
+                    const selectedValueKey = `${d.half_minutes_remaining}_${d.score_differential_buckets}`
+                    if (!selectedTime.has(selectedValueKey)) {
                         d3.select(this).style('stroke', 'black')
                                        .style('stroke-width', 1)
-                })
-                .on('mouseout', function(){
+                    }
+                    else {
                         d3.select(this).style('stroke-width', 0)
+                    }
                 })
-                .on('click', function(){
+                .on('mouseout', function(event,d){
+                    const selectedValueKey = `${d[0]}_${d[1]}`
+                    if (!selectedTime.has(selectedValueKey)) {
+                        d3.select(this).style('stroke-width', 0)
+                    }
+                    else {
+                        d3.select(this).style('stroke', 'black')
+                                       .style('stroke-width', 1)
+                    }
+                })
+                .on('click', function(event,d){
+                    const selectedValueKey = `${d[0]}_${d[1]}`
+                    console.log(d)
+                    if (selectedTime.has(selectedValueKey)) { 
+                        selectedTime.delete(selectedValueKey); 
+                        d3.select(this).style('stroke-width', 0);
+                    }
+                    else { 
+                        selectedTime.add(selectedValueKey); 
+                        d3.select(this).style('stroke', 'black')
+                                       .style('stroke-width', 1);
+                    }
+
+                    if (teamSelected == 'none'){
+                        dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                            return selectedTime.has(itemKey); })
+                            .attr("r", 3);
+                        
+                        dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                            return !selectedTime.has(itemKey); })
+                            .attr("r", 0);
+                    }
+                    else {
+                        dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                console.log(item.posteam)
+                                            return selectedTime.has(itemKey) && teamSelected == item.posteam; })
+                            .attr("r", 3);
+                        
+                        dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                            return !selectedTime.has(itemKey) || teamSelected != item.posteam; })
+                            .attr("r", 0);
+                    }
+
+                    if (selectedTime.size == 0 && teamSelected != 'none') {
+                        dots.filter(d => d.posteam == teamSelected).attr("r", 3)
+                    }
+                    else if (selectedTime.size == 0) {
+                        dots.attr("r",3)
+                    }
+                    // if (d3.select(this).selected == false) {
+                    //     d3.select(this).style('stroke', 'black')
+                    //                 .style('stroke-width', 1);
+                    //     dots.filter(((d => score_buckets(d) == this.score_differential_buckets) || (d => min_remaining(d) == this.half_minutes_remaining))
+                    //                 && (d => teamAccessor(d) == teamSelected))
+                    //         .attr("r", 0);
+                    //     d3.select(this).datum({selected:true});
+                    // }
+                    // else {
+                    //     d3.select(this).style('stroke-width', 0);
+                    //     dots.filter(((d => score_buckets(d) == this.score_differential_buckets) || (d => min_remaining(d) == this.half_minutes_remaining))
+                    //                 && (d => teamAccessor(d) == teamSelected))
+                    //         .attr("r", 3);
+                    //     d3.select(this).datum({selected:false})
+                    // }
                         //highlight this, unhighlight others (?) or just leave the stroke-width as 1
                         //filter if not filtered
                         //unfilter if filtered
