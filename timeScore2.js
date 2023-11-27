@@ -66,7 +66,7 @@ d3.csv("2018-2022_nflfastR_clean.csv").then(
                 .call(xAxisGen)
                 .style("transform", `translate(${dimensions.rect_length/2}px,${dimensions.height-dimensions.margin.bottom+dimensions.rect_length}px)`)
 
-        var yAxisGen = d3.axisLeft().scale(yScale).tickValues(d3.map(moose, score_buckets))
+        var yAxisGen = d3.axisLeft().scale(yScale).tickValues([-35, -28, -21, -14, -7,0,7,14,21,28,35])
         var yAxis = svg.append("g")
                 .call(yAxisGen)
                 .style("transform", `translate(${dimensions.margin.left}px, ${dimensions.rect_length/2}px)`)
