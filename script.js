@@ -1,5 +1,8 @@
 d3.csv('2018-2022_nflfastR_clean.csv').then(
     function(dataset) {
+
+        // SCATTER STUFF
+
         var svg_dimensions = {
             width: 700,
             height: 775,
@@ -83,6 +86,8 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         .attr("cy", d => yScale(yAccessor(d)))
                         .attr("fill", d => colorWay(d,'none'))
                         .attr("opacity", '0.3')
+
+        // LOGOS STUFF
         
         var logos = ['ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
                     'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC', 'LA',
@@ -142,6 +147,186 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         });
         })
 
+
+        // TIME STUFF
+
+        //https://observablehq.com/@d3/d3-group <-- Source for rollup syntax
+        //https://observablehq.com/@d3/d3-flatgroup  <-- Source for flatRollup syntax
+        moose = d3.flatRollup(dataset, i => d3.sum(i, k => k.pass)/i.length, d=>d.score_differential_buckets, d=>d.half_minutes_remaining)
+
+        var dimensions={
+            width: 800,
+            height: 270,
+            margin: {
+                top: 5,
+                bottom: 60,
+                right: 50,
+                left: 100
+            },
+            rect_length: 20
+        }
+    
+        var score_buckets = i => +i[0]
+        var min_remaining = i => +i[1]
+        var percent_pass = i => +i[2]    
+
+        var svgTime = d3.select("#time")
+                    .style("width", dimensions.width)
+                    .style("height", dimensions.height)
+
+        var xScaleTime = d3.scaleLinear()
+                .domain(d3.extent(moose, min_remaining))
+                .range([dimensions.margin.left + 31*dimensions.rect_length, dimensions.margin.left])
+
+        var yScaleTime = d3.scaleLinear()
+                .domain(d3.extent(moose, score_buckets))
+                .range([dimensions.height - dimensions.margin.bottom, dimensions.height - dimensions.margin.bottom - 10*dimensions.rect_length])
+        
+        const color = d3.scaleDiverging([0,0.5,1],["blue", "white","red"])
+
+        var rectanglesTime = svgTime.append("g")
+                .selectAll("rect")
+                .data(moose)
+                .enter()
+                .append("rect")
+                .on('mouseover', function(){
+                        d3.select(this).style('stroke', 'black')
+                                       .style('stroke-width', 1)
+                })
+                .on('mouseout', function(){
+                        d3.select(this).style('stroke-width', 0)
+                })
+                .on('click', function(){
+                        //highlight this, unhighlight others (?) or just leave the stroke-width as 1
+                        //filter if not filtered
+                        //unfilter if filtered
+                })
+                .attr("x", d => xScaleTime(min_remaining(d)))
+                .attr("y", d => yScaleTime(score_buckets(d)))
+                .attr("width", dimensions.rect_length)
+                .attr("height", dimensions.rect_length)
+                .attr("fill", d=>color(percent_pass(d)))
+
+        // DOWN STUFF
+
+        reduced_data = d3.flatRollup(dataset, i => d3.sum(i, k => k.pass)/i.length, d=>d.down, d=>d.ydstogo_buckets)
+        reduced_data.splice(56, 1)
+
+        var downDimensions={
+            width: 750,
+            height: 270,
+            margin: {
+                top: 15,
+                bottom: 30,
+                right: 50,
+                left: 100
+            },
+            rectLength: 40
+        }
+
+        var downs = i => +i[0]
+        var ydstogo = i => i[1]
+        var downsLabel = ['1st Down', '2nd Down', '3rd Down', '4th Down']
+
+        var downs_svg = d3.select("#downs")
+                    .style("width", downDimensions.width)
+                    .style("height", downDimensions.height)
+
+        var ydsLabel = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11-15', '16-20', '21-25', '26+'];
+
+        //build x scale
+        var xScaleDowns = d3.scalePoint()
+                .domain(ydsLabel)
+                .range([downDimensions.margin.left, downDimensions.margin.left + 13*downDimensions.rectLength+13])
+                
+        //build y scale
+        var yScaleDowns = d3.scaleLinear()
+                .domain(d3.extent(reduced_data, downs))
+                .range([downDimensions.height - downDimensions.margin.bottom - 5*downDimensions.rectLength-3, downDimensions.height-downDimensions.margin.bottom-2*downDimensions.rectLength])
+                
+        var rectsDowns = downs_svg.append("g")
+                .selectAll("rect")
+                .data(reduced_data)
+                .enter()
+                .append("rect")
+                .on('mouseover', function(){
+                        d3.select(this).style('stroke', 'black')
+                                        .style('stroke-width', 1)
+                })
+                .on('mouseout', function(){
+                        d3.select(this).style('stroke-width', 0)
+                })
+                .attr("y", d => yScaleDowns(downs(d)))
+                .attr("x", d => xScaleDowns(ydstogo(d))) 
+                .attr("height", downDimensions.rectLength)
+                .attr("width", downDimensions.rectLength)
+                .attr("fill", d=>color(percent_pass(d)))
+
+        // LEGEND STUFF
+
+        //build color legend
+        //code from: https://www.visualcinnamon.com/2016/05/smooth-color-legend-d3-downs_svg-gradient/
+        //Append a defs element to your SVG
+        var keysvg = d3.select("#legend")
+                    .style("width", 750)
+                    .style("height", 100)
+
+        var defs = keysvg.append("defs");
+
+        //Append a linearGradient element to the defs and give it a unique id
+        var linearGradient = defs.append("linearGradient")
+                .attr("id", "linear-gradient");
+        //Horizontal gradient
+        linearGradient
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%");
+        //Set the color for the start (0%)
+        linearGradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "blue"); 
+        //Set the color for the middle (50%)
+        linearGradient.append("stop")
+        .attr("offset", "50%")
+        .attr("stop-color", "white"); 
+        //Set the color for the end (100%)
+        linearGradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "red");   
+
+        //var legendWidth = 300;
+        //Color Legend container
+        var legendsvg = keysvg.append("g")
+                .attr("class", "legendWrapper")
+        //Draw the Rectangle
+        legendsvg.append("rect")
+                .attr("class", "legendRect")
+                .attr("x", 225)
+                .attr("y", 45)
+                .attr("width", 300)
+                .attr("height", 10)
+                .style("fill", "url(#linear-gradient)");
+                
+        //Append title
+        legendsvg.append("text")
+                .attr("class", "legendTitle")
+                .attr("x",336.5)
+                .attr("y", 30)
+                .text("Pass Percentage")
+                .attr("font-size", 12)
+        legendsvg.append("text")
+                .attr("class", "legendTitle")
+                .attr("x",225)
+                .attr("y", 90)
+                .text("Run often")
+                .attr("font-size", 12)
+        legendsvg.append("text")
+                .attr("class", "legendTitle")
+                .attr("x",435)
+                .attr("y", 90)
+                .text("Pass often")
+                .attr("font-size", 12)
 
         /*
             BELOW ARE ONLY LINES AND AXES
@@ -280,6 +465,80 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                          .text("Run")
                          .attr("fill", "gray")
 
+        
+        var xAxisGenTime = d3.axisBottom().scale(xScaleTime)
+        var xAxisTime = svgTime.append("g")
+                .call(xAxisGenTime)
+                .style("transform", `translate(${dimensions.rect_length/2}px,${dimensions.height-dimensions.margin.bottom+dimensions.rect_length}px)`)
+
+        var yAxisGenTime = d3.axisLeft().scale(yScaleTime).tickValues([-35, -28, -21, -14, -7,0,7,14,21,28,35])
+        var yAxisTime = svgTime.append("g")
+                .call(yAxisGenTime)
+                .style("transform", `translate(${dimensions.margin.left}px, ${dimensions.rect_length/2}px)`)
+
+        //Axis Title Code from http://www.d3noob.org/2012/12/adding-axis-labels-to-d3js-graph.html
+        var xTitleTime = svgTime.append("text")
+                .attr("x", dimensions.width / 3)
+                .attr("y", dimensions.height-10)
+                .style("text_anchor", "middle")
+                .text("Minutes Remaining in Half")
+        
+        var yTitleTime = svgTime.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", dimensions.margin.left/2)
+                .attr("x", -2*dimensions.height / 3 )
+                //.attr("dy", "1em")
+                .style("text_anchor", "middle")
+                .text("Score Differential") 
+                  
+
+        var xTitleDowns = downs_svg.append("text")
+                                    .attr("x", (downDimensions.width-downDimensions.margin.left)/2)
+                                    .attr("y", downDimensions.height-30)
+                                    .style("text_anchor", "middle")
+                                    .text("Yards to go")
+        
+        // var yTitleDowns = downs_svg.append("text")
+        //         .attr("transform", "rotate(-90)")
+        //         .attr("y", downDimensions.margin.left/4)
+        //         .attr("x", -2*downDimensions.height / 4 )
+        //         .style("text_anchor", "middle")
+        //         .text("Down")
+
+        var xAxisGenDowns = d3.axisBottom().scale(xScaleDowns)
+                .tickValues(xScaleDowns.domain())
+
+        var xAxisDowns = downs_svg.append("g")
+                .call(xAxisGenDowns)
+                .style("transform", `translate(${downDimensions.rectLength/2}px, ${downDimensions.height-downDimensions.margin.bottom-downDimensions.rectLength}px)`)
+
+        var newScaleDowns = d3.scaleBand()
+        .domain(downsLabel)
+        .range([downDimensions.height - downDimensions.margin.bottom - 4*downDimensions.rectLength, downDimensions.height - downDimensions.margin.bottom])
+
+        var yAxisGenDowns = d3.axisLeft().scale(newScaleDowns)
+
+        var yAxisDowns = downs_svg.append("g")
+                .call(yAxisGenDowns)
+                .style("transform", `translate(${downDimensions.margin.left}px, ${-downDimensions.rectLength}px)`)
+
+        //Set scale for x-axis
+        var xScaleLegend = d3.scaleLinear()
+        .range([225, 525])
+        .domain([0, 1]);
+
+        //Define x-axis
+        var xAxisLegend = d3.axisBottom().scale(xScaleLegend)
+                .ticks(3)
+                .tickValues([0,0.5,1])
+                .tickFormat(d3.format(".0%"))
+
+        //Set up X axis
+        legendsvg.append("g")
+        .attr("class", "axis")
+        .call(xAxisLegend)
+        //.attr("transform", "translate(0," + (10) + ")")
+        .style("transform", `translate(${0}px, ${55}px)`)
     }
 )
 
