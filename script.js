@@ -164,11 +164,12 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
             height: 270,
             margin: {
                 top: 5,
-                bottom: 60,
+                bottom: 55,
                 right: 50,
                 left: 100
             },
-            rect_length: 20
+            rect_length: 20,
+            background_border: 1
         }
     
         var score_buckets = i => +i[0]
@@ -185,11 +186,18 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
 
         var yScaleTime = d3.scaleLinear()
                 .domain(d3.extent(moose, score_buckets))
-                .range([dimensions.height - dimensions.margin.bottom, dimensions.height - dimensions.margin.bottom - 10*dimensions.rect_length])
+                .range([dimensions.height - dimensions.margin.bottom, dimensions.height - dimensions.margin.bottom - 10*(dimensions.rect_length+1)])
         
         const color = d3.scaleDiverging([0,0.5,1],["blue", "white","red"])
 
         var selectedTime = new Set();
+
+        var timeBackground = svgTime.append("rect")
+                                    .attr("x", xScaleTime(30)-dimensions.background_border)
+                                    .attr("y", yScaleTime(35)-dimensions.background_border)
+                                    .attr("width", dimensions.rect_length*32+dimensions.background_border*2)
+                                    .attr("height", dimensions.rect_length*11+10+dimensions.background_border*2)
+                                    .attr("fill", "black")
 
         var rectanglesTime = svgTime.append("g")
                 .selectAll("rect")
@@ -200,7 +208,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     const selectedValueKey = `${d.half_minutes_remaining}_${d.score_differential_buckets}`
                     if (!selectedTime.has(selectedValueKey)) {
                         d3.select(this).style('stroke', 'black')
-                                       .style('stroke-width', 1)
+                                       .style('stroke-width', 2)
                     }
                     else {
                         d3.select(this).style('stroke-width', 0)
@@ -213,9 +221,10 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     }
                     else {
                         d3.select(this).style('stroke', 'black')
-                                       .style('stroke-width', 1)
+                                       .style('stroke-width', 2)
                     }
                 })
+
                 .on('click', function(event,d){
                     const selectedValueKey = `${d[0]}_${d[1]}`
                     console.log(d)
@@ -226,7 +235,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     else { 
                         selectedTime.add(selectedValueKey); 
                         d3.select(this).style('stroke', 'black')
-                                       .style('stroke-width', 1);
+                                       .style('stroke-width', 2);
                     }
 
                     if (teamSelected == 'none'){
@@ -316,18 +325,73 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         var yScaleDowns = d3.scaleLinear()
                 .domain(d3.extent(reduced_data, downs))
                 .range([downDimensions.height - downDimensions.margin.bottom - 5*downDimensions.rectLength-3, downDimensions.height-downDimensions.margin.bottom-2*downDimensions.rectLength])
-                
+        
+        var selectedDown = new Set();
+
         var rectsDowns = downs_svg.append("g")
                 .selectAll("rect")
                 .data(reduced_data)
                 .enter()
                 .append("rect")
-                .on('mouseover', function(){
+                .on('mouseover', function(event,d){
+                    const selectedValueKeyNew = `${d.ydstogo}_${d.downs}`
+                    if(!selectedDown.has(selectedValueKeyNew)){
                         d3.select(this).style('stroke', 'black')
                                         .style('stroke-width', 1)
-                })
-                .on('mouseout', function(){
+                    }
+                    else{
                         d3.select(this).style('stroke-width', 0)
+                    }
+                })
+                .on('mouseout', function(event,d){
+                    const selectedValueKeyNew = `${d[0]}_${d[1]}`
+                    if(!selectedDown.has(selectedValueKeyNew)){
+                        d3.select(this).style('stroke-width', 0)
+                    }
+                    else{
+                        d3.select(this).style('stroke', 'black')
+                                       .style('stroke-width', 1)
+                    }
+                })
+                .on('click', function(event,d){
+                    const selectedValueKeyNew = `${d[0]}_${d[1]}`
+                    console.log(selectedValueKeyNew)
+                    if (selectedDown.has(selectedValueKeyNew)) { 
+                        selectedDown.delete(selectedValueKeyNew); 
+                        d3.select(this).style('stroke-width', 0);
+                    }
+                    else { 
+                        selectedDown.add(selectedValueKeyNew); 
+                        d3.select(this).style('stroke', 'black')
+                                       .style('stroke-width', 1);
+                                    
+                    }
+                    console.log(d)
+                    if (teamSelected == 'none'){
+                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                            return selectedDown.has(itemKeyNew); })
+                            .attr("r", 3);
+                        
+                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                            return !selectedDown.has(itemKeyNew); })
+                            .attr("r", 0);
+                    }
+                    else {
+                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                            return selectedDown.has(itemKeyNew) && teamSelected == item.posteam; })
+                            .attr("r", 3);
+                        
+                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                            return !selectedDown.has(itemKeyNew) || teamSelected != item.posteam; })
+                            .attr("r", 0);
+                    }
+
+                    if (selectedDown.size == 0 && teamSelected != 'none') {
+                        dots.filter(d => d.posteam == teamSelected).attr("r", 3)
+                    }
+                    else if (selectedDown.size == 0) {
+                        dots.attr("r",3)
+                    }
                 })
                 .attr("y", d => yScaleDowns(downs(d)))
                 .attr("x", d => xScaleDowns(ydstogo(d))) 
@@ -551,8 +615,8 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
 
         //Axis Title Code from http://www.d3noob.org/2012/12/adding-axis-labels-to-d3js-graph.html
         var xTitleTime = svgTime.append("text")
-                .attr("x", dimensions.width / 3)
-                .attr("y", dimensions.height-10)
+                .attr("x", 6* dimensions.width / 15)
+                .attr("y", dimensions.height-5)
                 .style("text_anchor", "middle")
                 .text("Minutes Remaining in Half")
         
