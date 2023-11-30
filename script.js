@@ -325,18 +325,73 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         var yScaleDowns = d3.scaleLinear()
                 .domain(d3.extent(reduced_data, downs))
                 .range([downDimensions.height - downDimensions.margin.bottom - 5*downDimensions.rectLength-3, downDimensions.height-downDimensions.margin.bottom-2*downDimensions.rectLength])
-                
+        
+        var selectedDown = new Set();
+
         var rectsDowns = downs_svg.append("g")
                 .selectAll("rect")
                 .data(reduced_data)
                 .enter()
                 .append("rect")
-                .on('mouseover', function(){
+                .on('mouseover', function(event,d){
+                    const selectedValueKeyNew = `${d.ydstogo}_${d.downs}`
+                    if(!selectedDown.has(selectedValueKeyNew)){
                         d3.select(this).style('stroke', 'black')
                                         .style('stroke-width', 1)
-                })
-                .on('mouseout', function(){
+                    }
+                    else{
                         d3.select(this).style('stroke-width', 0)
+                    }
+                })
+                .on('mouseout', function(event,d){
+                    const selectedValueKeyNew = `${d[0]}_${d[1]}`
+                    if(!selectedDown.has(selectedValueKeyNew)){
+                        d3.select(this).style('stroke-width', 0)
+                    }
+                    else{
+                        d3.select(this).style('stroke', 'black')
+                                       .style('stroke-width', 1)
+                    }
+                })
+                .on('click', function(event,d){
+                    const selectedValueKeyNew = `${d[0]}_${d[1]}`
+                    console.log(selectedValueKeyNew)
+                    if (selectedDown.has(selectedValueKeyNew)) { 
+                        selectedDown.delete(selectedValueKeyNew); 
+                        d3.select(this).style('stroke-width', 0);
+                    }
+                    else { 
+                        selectedDown.add(selectedValueKeyNew); 
+                        d3.select(this).style('stroke', 'black')
+                                       .style('stroke-width', 1);
+                                    
+                    }
+                    console.log(d)
+                    if (teamSelected == 'none'){
+                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                            return selectedDown.has(itemKeyNew); })
+                            .attr("r", 3);
+                        
+                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                            return !selectedDown.has(itemKeyNew); })
+                            .attr("r", 0);
+                    }
+                    else {
+                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                            return selectedDown.has(itemKeyNew) && teamSelected == item.posteam; })
+                            .attr("r", 3);
+                        
+                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                            return !selectedDown.has(itemKeyNew) || teamSelected != item.posteam; })
+                            .attr("r", 0);
+                    }
+
+                    if (selectedDown.size == 0 && teamSelected != 'none') {
+                        dots.filter(d => d.posteam == teamSelected).attr("r", 3)
+                    }
+                    else if (selectedDown.size == 0) {
+                        dots.attr("r",3)
+                    }
                 })
                 .attr("y", d => yScaleDowns(downs(d)))
                 .attr("x", d => xScaleDowns(ydstogo(d))) 
