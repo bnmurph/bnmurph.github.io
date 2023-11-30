@@ -168,7 +168,8 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                 right: 50,
                 left: 100
             },
-            rect_length: 20
+            rect_length: 20,
+            background_border: 1
         }
     
         var score_buckets = i => +i[0]
@@ -190,6 +191,13 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         const color = d3.scaleDiverging([0,0.5,1],["blue", "white","red"])
 
         var selectedTime = new Set();
+
+        var timeBackground = svgTime.append("rect")
+                                    .attr("x", xScaleTime(30)-dimensions.background_border)
+                                    .attr("y", yScaleTime(35)-dimensions.background_border)
+                                    .attr("width", dimensions.rect_length*32+dimensions.background_border*2)
+                                    .attr("height", dimensions.rect_length*11+dimensions.background_border*2)
+                                    .attr("fill", "black")
 
         var rectanglesTime = svgTime.append("g")
                 .selectAll("rect")
@@ -216,6 +224,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                        .style('stroke-width', 1)
                     }
                 })
+
                 .on('click', function(event,d){
                     const selectedValueKey = `${d[0]}_${d[1]}`
                     console.log(d)
