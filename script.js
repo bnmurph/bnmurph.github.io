@@ -134,6 +134,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                 reduced_data2 = d3.flatRollup(dataset.filter(d => teamAccessor(d) == logo), i => d3.sum(i, k => k.pass)/i.length, d=>d.down, d=>d.ydstogo_buckets);
                                 reduced_data2.splice(56, 1);
                                 downs_svg.selectAll('rect').data(reduced_data2).attr("fill", d=>color(percent_pass(d)));
+                                timeBackground.attr('fill','black');
                             }
                             else {
                                 d3.select(this).style('border', 'none');
@@ -146,6 +147,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                 teamSelected = "none";
                                 svgTime.selectAll('rect').data(moose).attr("fill", d=>color(percent_pass(d)));
                                 downs_svg.selectAll('rect').data(reduced_data).attr("fill", d=>color(percent_pass(d)));
+                                timeBackground.attr('fill','black');
                             }
                             
                         })
