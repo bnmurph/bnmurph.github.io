@@ -132,11 +132,13 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                             }
                             else {
                                 d3.select(this).style('border', 'none');
+                                d3.selectAll("rect").style('stroke-width', 0);
+                                selectedTime.clear();
                                 dots.attr('r', 3)
-                                    .attr("fill", d => colorWay(d,'none'))
-                                d3.select(this).datum({selected:false})
+                                    .attr("fill", d => colorWay(d,'none'));
+                                d3.select(this).datum({selected:false});
                                 logoSelected = false;
-                                teamSelected = "none"
+                                teamSelected = "none";
                             }
                             
                         })
@@ -192,6 +194,10 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
 
         var selectedTime = new Set();
 
+        var isTimeSelected = false;
+
+        var isDownSelected = false;
+
         var timeBackground = svgTime.append("rect")
                                     .attr("x", xScaleTime(30)-dimensions.background_border)
                                     .attr("y", yScaleTime(35)-dimensions.background_border)
@@ -226,6 +232,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                 })
 
                 .on('click', function(event,d){
+                    isTimeSelected = true;
                     const selectedValueKey = `${d[0]}_${d[1]}`
                     console.log(d)
                     if (selectedTime.has(selectedValueKey)) { 
@@ -239,49 +246,74 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     }
 
                     if (teamSelected == 'none'){
-                        dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
-                                            return selectedTime.has(itemKey); })
-                            .attr("r", 3);
-                        
-                        dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
-                                            return !selectedTime.has(itemKey); })
-                            .attr("r", 0);
+                        if (isDownSelected) {
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                return selectedTime.has(itemKey) && selectedDown.has(itemKeyNew); })
+                                .attr("r", 3);
+                            
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                return !selectedTime.has(itemKey) || !selectedDown.has(itemKeyNew); })
+                                .attr("r", 0);
+                        }
+                        else {
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                return selectedTime.has(itemKey); })
+                                .attr("r", 3);
+                            
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                return !selectedTime.has(itemKey); })
+                                .attr("r", 0);
+                        }
                     }
                     else {
-                        dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
-                                                console.log(item.posteam)
-                                            return selectedTime.has(itemKey) && teamSelected == item.posteam; })
-                            .attr("r", 3);
+                        if (isDownSelected) {
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                return selectedTime.has(itemKey) && selectedDown.has(itemKeyNew) && teamSelected == item.posteam; })
+                                .attr("r", 3);
+                            
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;                  
+                                                const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                return !selectedTime.has(itemKey) || !selectedDown.has(itemKey) || teamSelected != item.posteam; })
+                                .attr("r", 0);
+                        }
+                        else {
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                return selectedTime.has(itemKey) && teamSelected == item.posteam; })
+                                .attr("r", 3);
                         
-                        dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
-                                            return !selectedTime.has(itemKey) || teamSelected != item.posteam; })
-                            .attr("r", 0);
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                return !selectedTime.has(itemKey) || teamSelected != item.posteam; })
+                                .attr("r", 0);
+                        }
                     }
 
                     if (selectedTime.size == 0 && teamSelected != 'none') {
-                        dots.filter(d => d.posteam == teamSelected).attr("r", 3)
+                        if (selectedDown.size != 0) {
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                return d.posteam == teamSelected && selectedDown.has(itemKey); })
+                                .attr("r", 3);
+                            isDownSelected = false;
+                        }
+                        else {
+                            dots.filter(d => d.posteam == teamSelected).attr("r", 3);
+                            isDownSelected = false;
+                        }
                     }
                     else if (selectedTime.size == 0) {
-                        dots.attr("r",3)
+                        if (selectedDown.size != 0) {
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                            return selectedDown.has(itemKey); })
+                            .attr("r",3);
+                            isDownSelected = false;
+                        }
+                        else {
+                            dots.attr("r",3);
+                            isDownSelected = false;
+                        }
                     }
-                    // if (d3.select(this).selected == false) {
-                    //     d3.select(this).style('stroke', 'black')
-                    //                 .style('stroke-width', 1);
-                    //     dots.filter(((d => score_buckets(d) == this.score_differential_buckets) || (d => min_remaining(d) == this.half_minutes_remaining))
-                    //                 && (d => teamAccessor(d) == teamSelected))
-                    //         .attr("r", 0);
-                    //     d3.select(this).datum({selected:true});
-                    // }
-                    // else {
-                    //     d3.select(this).style('stroke-width', 0);
-                    //     dots.filter(((d => score_buckets(d) == this.score_differential_buckets) || (d => min_remaining(d) == this.half_minutes_remaining))
-                    //                 && (d => teamAccessor(d) == teamSelected))
-                    //         .attr("r", 3);
-                    //     d3.select(this).datum({selected:false})
-                    // }
-                        //highlight this, unhighlight others (?) or just leave the stroke-width as 1
-                        //filter if not filtered
-                        //unfilter if filtered
                 })
                 .attr("x", d => xScaleTime(min_remaining(d)))
                 .attr("y", d => yScaleTime(score_buckets(d)))
@@ -354,6 +386,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     }
                 })
                 .on('click', function(event,d){
+                    isDownSelected = true;
                     const selectedValueKeyNew = `${d[0]}_${d[1]}`
                     console.log(selectedValueKeyNew)
                     if (selectedDown.has(selectedValueKeyNew)) { 
@@ -366,31 +399,74 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                        .style('stroke-width', 1);
                                     
                     }
-                    console.log(d)
                     if (teamSelected == 'none'){
-                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
-                                            return selectedDown.has(itemKeyNew); })
-                            .attr("r", 3);
-                        
-                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
-                                            return !selectedDown.has(itemKeyNew); })
-                            .attr("r", 0);
+                        if (isTimeSelected) {
+                            dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                const itemKey2 = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                return selectedDown.has(itemKeyNew) && selectedTime.has(itemKey2); })
+                                .attr("r", 3);
+                            
+                            dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                const itemKey2 = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                return !selectedDown.has(itemKeyNew) || !selectedTime.has(itemKey2); })
+                                .attr("r", 0);
+                        }
+                        else {
+                            dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                return selectedDown.has(itemKeyNew); })
+                                .attr("r", 3);
+                            
+                            dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                return !selectedDown.has(itemKeyNew); })
+                                .attr("r", 0);
+                        }
                     }
                     else {
-                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
-                                            return selectedDown.has(itemKeyNew) && teamSelected == item.posteam; })
-                            .attr("r", 3);
-                        
-                        dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
-                                            return !selectedDown.has(itemKeyNew) || teamSelected != item.posteam; })
-                            .attr("r", 0);
+                        if (isTimeSelected) {
+                            dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                const itemKey2 = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                return selectedDown.has(itemKeyNew) && selectedTime.has(itemKey2) && teamSelected == item.posteam; })
+                                .attr("r", 3);
+                            
+                            dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                const itemKey2 = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                return !selectedDown.has(itemKeyNew) || !selectedTime.has(itemKey2) || teamSelected != item.posteam; })
+                                .attr("r", 0);
+                        }
+                        else {
+                            dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                return selectedDown.has(itemKeyNew) && teamSelected == item.posteam; })
+                                .attr("r", 3);
+                            
+                            dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
+                                                return !selectedDown.has(itemKeyNew) || teamSelected != item.posteam; })
+                                .attr("r", 0);
+                        }
                     }
 
                     if (selectedDown.size == 0 && teamSelected != 'none') {
-                        dots.filter(d => d.posteam == teamSelected).attr("r", 3)
+                        if (selectedTime.size != 0) {
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                                return d.posteam == teamSelected && selectedTime.has(itemKey); })
+                                .attr("r", 3);
+                            isDownSelected = false;
+                        }
+                        else {
+                            dots.filter(d => d.posteam == teamSelected).attr("r", 3);
+                            isDownSelected = false;
+                        }
                     }
                     else if (selectedDown.size == 0) {
-                        dots.attr("r",3)
+                        if (selectedTime.size != 0) {
+                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                                            return selectedTime.has(itemKey); })
+                            .attr("r",3);
+                            isDownSelected = false;
+                        }
+                        else {
+                            dots.attr("r",3);
+                            isDownSelected = false;
+                        }
                     }
                 })
                 .attr("y", d => yScaleDowns(downs(d)))
@@ -678,6 +754,3 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         .style("transform", `translate(${0}px, ${55}px)`)
     }
 )
-
-
-
