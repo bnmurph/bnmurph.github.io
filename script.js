@@ -199,6 +199,18 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         
         const color = d3.scaleDiverging([0,0.5,1],["blue", "white","red"])
 
+        //Axis Stuff
+        var xAxisGenTime = d3.axisBottom().scale(xScaleTime)
+        var xAxisTime = svgTime.append("g")
+                .call(xAxisGenTime)
+                .style("transform", `translate(${dimensions.rect_length/2}px,${dimensions.height-dimensions.margin.bottom+dimensions.rect_length}px)`)
+
+        var yAxisGenTime = d3.axisLeft().scale(yScaleTime).tickValues([-35, -28, -21, -14, -7,0,7,14,21,28,35])
+        var yAxisTime = svgTime.append("g")
+                .call(yAxisGenTime)
+                .style("transform", `translate(${dimensions.margin.left}px, ${dimensions.rect_length/2}px)`)
+
+
         var selectedTime = new Set();
 
         var isTimeSelected = false;
@@ -210,7 +222,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                     .attr("y", yScaleTime(35)-dimensions.background_border)
                                     .attr("width", dimensions.rect_length*32+dimensions.background_border*2)
                                     .attr("height", dimensions.rect_length*11+10+dimensions.background_border*2)
-                                    .attr("fill", "black")
+                                    .attr("fill", "gray")
 
         var rectanglesTime = svgTime.append("g")
                 .selectAll("rect")
@@ -342,7 +354,8 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                 right: 50,
                 left: 100
             },
-            rectLength: 40
+            rectLength: 40,
+            background_border: 1
         }
 
         var downs = i => +i[0]
@@ -367,6 +380,45 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         
         var selectedDown = new Set();
 
+        //Plot Axis and Labels
+        var xAxisGenDowns = d3.axisBottom().scale(xScaleDowns)
+                .tickValues(xScaleDowns.domain())
+
+        var xAxisDowns = downs_svg.append("g")
+                .call(xAxisGenDowns)
+                .style("transform", `translate(${downDimensions.rectLength/2}px, ${downDimensions.height-downDimensions.margin.bottom-downDimensions.rectLength}px)`)
+
+        var newScaleDowns = d3.scaleBand()
+        .domain(downsLabel)
+        .range([downDimensions.height - downDimensions.margin.bottom - 4*downDimensions.rectLength, downDimensions.height - downDimensions.margin.bottom])
+
+        var yAxisGenDowns = d3.axisLeft().scale(newScaleDowns)
+
+        var yAxisDowns = downs_svg.append("g")
+                .call(yAxisGenDowns)
+                .style("transform", `translate(${downDimensions.margin.left}px, ${-downDimensions.rectLength}px)`)
+
+        //Set scale for x-axis
+        var xScaleLegend = d3.scaleLinear()
+        .range([225, 525])
+        .domain([0, 1]);
+
+        //Define x-axis
+        var xAxisLegend = d3.axisBottom().scale(xScaleLegend)
+                .ticks(3)
+                .tickValues([0,0.5,1])
+                .tickFormat(d3.format(".0%"))
+
+
+        //Plot Background Gray Box
+        var downsBackground = downs_svg.append("rect")
+                                    .attr("x", xScaleDowns('1')-downDimensions.background_border)
+                                    .attr("y", yScaleDowns(1)-downDimensions.background_border)
+                                    .attr("width", 14*downDimensions.rectLength+15)
+                                    .attr("height", 4*downDimensions.rectLength+5)
+                                    .attr("fill", "gray")
+
+        //Plot data rectangles
         var rectsDowns = downs_svg.append("g")
                 .selectAll("rect")
                 .data(reduced_data)
@@ -376,7 +428,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     const selectedValueKeyNew = `${d.ydstogo}_${d.downs}`
                     if(!selectedDown.has(selectedValueKeyNew)){
                         d3.select(this).style('stroke', 'black')
-                                        .style('stroke-width', 1)
+                                        .style('stroke-width', 2)
                     }
                     else{
                         d3.select(this).style('stroke-width', 0)
@@ -389,7 +441,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     }
                     else{
                         d3.select(this).style('stroke', 'black')
-                                       .style('stroke-width', 1)
+                                       .style('stroke-width', 2)
                     }
                 })
                 .on('click', function(event,d){
@@ -403,7 +455,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     else { 
                         selectedDown.add(selectedValueKeyNew); 
                         d3.select(this).style('stroke', 'black')
-                                       .style('stroke-width', 1);
+                                       .style('stroke-width', 2);
                                     
                     }
                     if (teamSelected == 'none'){
@@ -686,16 +738,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                          .attr("fill", "gray")
 
         
-        var xAxisGenTime = d3.axisBottom().scale(xScaleTime)
-        var xAxisTime = svgTime.append("g")
-                .call(xAxisGenTime)
-                .style("transform", `translate(${dimensions.rect_length/2}px,${dimensions.height-dimensions.margin.bottom+dimensions.rect_length}px)`)
-
-        var yAxisGenTime = d3.axisLeft().scale(yScaleTime).tickValues([-35, -28, -21, -14, -7,0,7,14,21,28,35])
-        var yAxisTime = svgTime.append("g")
-                .call(yAxisGenTime)
-                .style("transform", `translate(${dimensions.margin.left}px, ${dimensions.rect_length/2}px)`)
-
+        
         //Axis Title Code from http://www.d3noob.org/2012/12/adding-axis-labels-to-d3js-graph.html
         var xTitleTime = svgTime.append("text")
                 .attr("x", 6* dimensions.width / 15)
@@ -725,33 +768,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         //         .style("text_anchor", "middle")
         //         .text("Down")
 
-        var xAxisGenDowns = d3.axisBottom().scale(xScaleDowns)
-                .tickValues(xScaleDowns.domain())
 
-        var xAxisDowns = downs_svg.append("g")
-                .call(xAxisGenDowns)
-                .style("transform", `translate(${downDimensions.rectLength/2}px, ${downDimensions.height-downDimensions.margin.bottom-downDimensions.rectLength}px)`)
-
-        var newScaleDowns = d3.scaleBand()
-        .domain(downsLabel)
-        .range([downDimensions.height - downDimensions.margin.bottom - 4*downDimensions.rectLength, downDimensions.height - downDimensions.margin.bottom])
-
-        var yAxisGenDowns = d3.axisLeft().scale(newScaleDowns)
-
-        var yAxisDowns = downs_svg.append("g")
-                .call(yAxisGenDowns)
-                .style("transform", `translate(${downDimensions.margin.left}px, ${-downDimensions.rectLength}px)`)
-
-        //Set scale for x-axis
-        var xScaleLegend = d3.scaleLinear()
-        .range([225, 525])
-        .domain([0, 1]);
-
-        //Define x-axis
-        var xAxisLegend = d3.axisBottom().scale(xScaleLegend)
-                .ticks(3)
-                .tickValues([0,0.5,1])
-                .tickFormat(d3.format(".0%"))
 
         //Set up X axis
         legendsvg.append("g")
