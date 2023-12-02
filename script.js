@@ -365,7 +365,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
 
         var downs = i => +i[0]
         var ydstogo = i => i[1]
-        var downsLabel = ['1st Down', '2nd Down', '3rd Down', '4th Down']
+        var downsLabel = ['1st', '2nd', '3rd', '4th']
 
         var downs_svg = d3.select("#downs")
                     .style("width", downDimensions.width)
@@ -600,7 +600,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                 .attr("font-size", 12)
         legendsvg.append("text")
                 .attr("class", "legendTitle")
-                .attr("x",435)
+                .attr("x",476)
                 .attr("y", 90)
                 .text("Pass often")
                 .attr("font-size", 12)
@@ -746,7 +746,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         
         //Axis Title Code from http://www.d3noob.org/2012/12/adding-axis-labels-to-d3js-graph.html
         var xTitleTime = svgTime.append("text")
-                .attr("x", 6* dimensions.width / 15)
+                .attr("x", (6* dimensions.width / 15) +15)
                 .attr("y", dimensions.height-5)
                 .style("text_anchor", "middle")
                 .text("Minutes Remaining in Half")
@@ -761,17 +761,19 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                   
 
         var xTitleDowns = downs_svg.append("text")
-                                    .attr("x", (downDimensions.width-downDimensions.margin.left)/2)
-                                    .attr("y", downDimensions.height-30)
+                                    .attr("x", ((downDimensions.width-downDimensions.margin.left)/2)+30)
+                                    .attr("y", downDimensions.height-40)
                                     .style("text_anchor", "middle")
                                     .text("Yards to go")
         
-        // var yTitleDowns = downs_svg.append("text")
-        //         .attr("transform", "rotate(-90)")
-        //         .attr("y", downDimensions.margin.left/4)
-        //         .attr("x", -2*downDimensions.height / 4 )
-        //         .style("text_anchor", "middle")
-        //         .text("Down")
+        var yTitleDowns = downs_svg.append("text")
+                .attr("transform", "rotate(-90)")
+                // .attr("y", downDimensions.margin.left/4)
+                // .attr("x", -2*downDimensions.height / 4 )
+                .attr("y", downDimensions.margin.left/2)
+                .attr("x", -1*downDimensions.height/2)
+                .style("text_anchor", "middle")
+                .text("Down")
 
 
 
