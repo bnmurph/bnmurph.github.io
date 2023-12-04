@@ -130,10 +130,19 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                 logoSelected = true;
                                 teamSelected = logo;
                                 moose2 = d3.flatRollup(dataset.filter(d => teamAccessor(d) == logo), i => d3.sum(i, k => k.pass)/i.length, d=>d.score_differential_buckets, d=>d.half_minutes_remaining);
-                                rectanglesTime.data(moose2).attr("fill", d=>color(percent_pass(d)));
+                                rectanglesTime.attr("fill", "gray"); //Set colors to Gray
+                                rectanglesTime.data(moose2)
+                                            .attr("fill", d => color(percent_pass(d)))   
+                                            .attr("x", d => xScaleTime(min_remaining(d)))
+                                            .attr("y", d => yScaleTime(score_buckets(d)))
                                 reduced_data2 = d3.flatRollup(dataset.filter(d => teamAccessor(d) == logo), i => d3.sum(i, k => k.pass)/i.length, d=>d.down, d=>d.ydstogo_buckets);
                                 reduced_data2.splice(reduced_data2.length - 1, 1);
-                                rectsDowns.data(reduced_data2).attr("fill", d=>color(percent_pass(d)));
+                                rectsDowns.attr("fill", "gray"); //Set colors to Gray
+                                rectsDowns.data(reduced_data2)
+                                            .attr("fill", d=>color(percent_pass(d)))
+                                            .attr("x", d => xScaleDowns(ydstogo(d)))
+                                            .attr("y", d => yScaleDowns(downs(d)))
+                                console.log(reduced_data2)
 
                             }
                             else {
@@ -145,8 +154,12 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                 d3.select(this).datum({selected:false});
                                 logoSelected = false;
                                 teamSelected = "none";
-                                rectanglesTime.data(moose).attr("fill", d=>color(percent_pass(d)));
-                                rectsDowns.data(reduced_data).attr("fill", d=>color(percent_pass(d)));
+                                rectanglesTime.data(moose).attr("fill", d=>color(percent_pass(d)))
+                                                .attr("x", d => xScaleTime(min_remaining(d)))
+                                                .attr("y", d => yScaleTime(score_buckets(d)))
+                                rectsDowns.data(reduced_data).attr("fill", d=>color(percent_pass(d)))
+                                                .attr("x", d => xScaleDowns(ydstogo(d)))
+                                                .attr("y", d => yScaleDowns(downs(d)));
                             }
                             
                         })
@@ -254,6 +267,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         d3.select(this).style('stroke-width', 0)
                     }
                     d3.select(this).style('cursor', 'pointer')
+                    console.log(d)
                 })
                 .on('mouseout', function(event,d){
                     const selectedValueKey = `${d[0]}_${d[1]}`
@@ -422,6 +436,8 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                 .call(yAxisGenDowns)
                 .style("transform", `translate(${downDimensions.margin.left}px, ${-downDimensions.rectLength}px)`)
                 .on('mouseover', function(event,d){
+                    console.log(event)
+                    console.log(d)
                     d3.select(this).style('cursor', 'pointer')
                 })
                 .on('mouseout', function(event,d){
@@ -464,6 +480,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         d3.select(this).style('stroke-width', 0)
                     }
                     d3.select(this).style('cursor', 'pointer')
+                    console.log(d)
                 })
                 .on('mouseout', function(event,d){
                     const selectedValueKeyNew = `${d[0]}_${d[1]}`
