@@ -130,19 +130,56 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                 logoSelected = true;
                                 teamSelected = logo;
                                 moose2 = d3.flatRollup(dataset.filter(d => teamAccessor(d) == logo), i => d3.sum(i, k => k.pass)/i.length, d=>d.score_differential_buckets, d=>d.half_minutes_remaining);
-                                rectanglesTime.attr("fill", "gray"); //Set colors to Gray
-                                rectanglesTime.data(moose2)
-                                            .attr("fill", d => color(percent_pass(d)))   
-                                            .attr("x", d => xScaleTime(min_remaining(d)))
-                                            .attr("y", d => yScaleTime(score_buckets(d)))
+                                
+                                var arr1 = []
+                                var arr2 = []
+                                var arr3 = []
+
+                                for( let i=0; i < moose2.length; i++){
+                                    arr1[i]=(moose2[i][0])
+                                    arr2[i]=(moose2[i][1])
+                                    arr3[i]=(moose2[i][2])
+                                    
+                                }
+                                console.log(arr1)
+                                console.log(arr2)
+                                console.log(arr3)
+                                console.log(moose2)
+                                rectanglesTime.attr("fill", function(d){
+                                    for (let i = 0; i < arr2.length; i++){
+                                        if (arr1[i] == d[0] && arr2[i] == d[1]){
+                                            return color(arr3[i])
+                                        }
+                                    }
+                                    
+                                    return "gray";
+                                })
+
                                 reduced_data2 = d3.flatRollup(dataset.filter(d => teamAccessor(d) == logo), i => d3.sum(i, k => k.pass)/i.length, d=>d.down, d=>d.ydstogo_buckets);
                                 reduced_data2.splice(reduced_data2.length - 1, 1);
-                                rectsDowns.attr("fill", "gray"); //Set colors to Gray
-                                rectsDowns.data(reduced_data2)
-                                            .attr("fill", d=>color(percent_pass(d)))
-                                            .attr("x", d => xScaleDowns(ydstogo(d)))
-                                            .attr("y", d => yScaleDowns(downs(d)))
+                                
+                                var set1 = []
+                                var set2 = []
+                                var set3 = []
+
+                                for( let i=0; i < reduced_data2.length; i++){
+                                    set1[i]=(reduced_data2[i][0])
+                                    set2[i]=(reduced_data2[i][1])
+                                    set3[i]=(reduced_data2[i][2])
+                                    
+                                }
+                                rectsDowns.attr("fill", function(d){
+                                    for (let i = 0; i < set1.length; i++){
+                                        if (set1[i] == d[0] && set2[i] == d[1]){
+                                            return color(set3[i])
+                                        }
+                                    }
+                                    
+                                    return "gray";
+                                    
+                                })
                                 console.log(reduced_data2)
+                                console.log(reduced_data2[0])
 
                             }
                             else {
@@ -175,6 +212,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
 
                         });
         })
+
 
 
         // TIME STUFF
