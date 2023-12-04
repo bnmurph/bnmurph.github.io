@@ -104,7 +104,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         */
 
         var logoSelected = false;
-        var teamSelected = "none"
+        var teamSelected = "none";
 
         logos.forEach(logo => {
             var img = d3.select('#pictures')
@@ -116,12 +116,12 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         .datum({selected: false})
                         .on("click", function(){
                             if (d3.select(this).datum().selected == false) {
+                                d3.selectAll("img").style('border', 'none');
                                 d3.select(this).style('border', '2px solid black');
                                 dots.attr("r",3);
                                 d3.selectAll("img").datum({selected:false});
                                 d3.selectAll("rect").style('stroke-width', 0);
                                 selectedTime.clear();
-                                d3.selectAll("img").style('border', 'none');
                                 dots.filter(d => teamAccessor(d) != logo)
                                     .attr("r", 0);
                                 dots.filter(d => teamAccessor(d) == logo)
@@ -130,12 +130,11 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                 logoSelected = true;
                                 teamSelected = logo;
                                 moose2 = d3.flatRollup(dataset.filter(d => teamAccessor(d) == logo), i => d3.sum(i, k => k.pass)/i.length, d=>d.score_differential_buckets, d=>d.half_minutes_remaining);
-                                svgTime.selectAll('rect').data(moose2).attr("fill", d=>color(percent_pass(d)));
+                                rectanglesTime.data(moose2).attr("fill", d=>color(percent_pass(d)));
                                 reduced_data2 = d3.flatRollup(dataset.filter(d => teamAccessor(d) == logo), i => d3.sum(i, k => k.pass)/i.length, d=>d.down, d=>d.ydstogo_buckets);
-                                reduced_data2.splice(56, 1);
-                                downs_svg.selectAll('rect').data(reduced_data2).attr("fill", d=>color(percent_pass(d)));
-                                timeBackground.attr('fill','gray');
-                                downsBackground.attr('fill', 'gray');
+                                reduced_data2.splice(reduced_data2.length - 1, 1);
+                                rectsDowns.data(reduced_data2).attr("fill", d=>color(percent_pass(d)));
+
                             }
                             else {
                                 d3.select(this).style('border', 'none');
@@ -146,18 +145,13 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                 d3.select(this).datum({selected:false});
                                 logoSelected = false;
                                 teamSelected = "none";
-                                svgTime.selectAll('rect').data(moose).attr("fill", d=>color(percent_pass(d)));
-                                downs_svg.selectAll('rect').data(reduced_data).attr("fill", d=>color(percent_pass(d)));
-                                timeBackground.attr('fill','gray');
-                                downsBackground.attr('fill', 'gray');
-
+                                rectanglesTime.data(moose).attr("fill", d=>color(percent_pass(d)));
+                                rectsDowns.data(reduced_data).attr("fill", d=>color(percent_pass(d)));
                             }
                             
                         })
                         .on('mouseover', function(){
-                            if (!logoSelected) { d3.select(this).style('border', '2px solid black'); }
-                            else if (d3.select(this).datum().selected == false) { d3.select(this).style('border', '2px solid black'); }
-                            else { d3.select(this).style('border', 'none'); }
+                            d3.select(this).style('border', '2px solid black'); 
                         })
                         .on('mouseout', function(){
                             if (!logoSelected ) { d3.select(this).style('border', 'none'); }
@@ -222,6 +216,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
 
         var isDownSelected = false;
 
+
         var timeBackground = svgTime.append("rect")
                                     .attr("x", xScaleTime(30)-dimensions.background_border)
                                     .attr("y", yScaleTime(35)-dimensions.background_border)
@@ -234,7 +229,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                 .data(moose)
                 .enter()
                 .append("rect")
-                .on('mouseover', function(event,d){
+                .on('mouseover', function(event,d){      //Mouseover and mouseout don't seem to work
                     const selectedValueKey = `${d.half_minutes_remaining}_${d.score_differential_buckets}`
                     if (!selectedTime.has(selectedValueKey)) {
                         d3.select(this).style('stroke', 'black')
@@ -258,7 +253,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                 .on('click', function(event,d){
                     isTimeSelected = true;
                     const selectedValueKey = `${d[0]}_${d[1]}`
-                    console.log(d)
+                    
                     if (selectedTime.has(selectedValueKey)) { 
                         selectedTime.delete(selectedValueKey); 
                         d3.select(this).style('stroke-width', 0);
@@ -268,7 +263,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         d3.select(this).style('stroke', 'black')
                                        .style('stroke-width', 2);
                     }
-
+                    
                     if (teamSelected == 'none'){
                         if (isDownSelected) {
                             dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
