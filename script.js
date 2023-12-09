@@ -337,7 +337,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     }
                     
                     if (teamSelected == 'none'){
-                        if (isDownSelected) {
+                        if (selectedDown.size != 0) {
                             dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
                                                 const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
                                                 return selectedTime.has(itemKey) && selectedDown.has(itemKeyNew); })
@@ -359,7 +359,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         }
                     }
                     else {
-                        if (isDownSelected) {
+                        if (selectedDown.size != 0) {
                             dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
                                                 const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
                                                 return selectedTime.has(itemKey) && selectedDown.has(itemKeyNew) && teamSelected == item.posteam; })
@@ -537,7 +537,6 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                 .on('click', function(event,d){
                     isDownSelected = true;
                     const selectedValueKeyNew = `${d[0]}_${d[1]}`
-                    console.log(selectedValueKeyNew)
                     if (selectedDown.has(selectedValueKeyNew)) { 
                         selectedDown.delete(selectedValueKeyNew); 
                         d3.select(this).style('stroke-width', 0);
@@ -549,7 +548,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                                     
                     }
                     if (teamSelected == 'none'){
-                        if (isTimeSelected) {
+                        if (selectedTime.size != 0) {
                             dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
                                                 const itemKey2 = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
                                                 return selectedDown.has(itemKeyNew) && selectedTime.has(itemKey2); })
@@ -571,7 +570,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                         }
                     }
                     else {
-                        if (isTimeSelected) {
+                        if (selectedTime.size != 0) {
                             dots.filter(item => { const itemKeyNew = `${item.down}_${item.ydstogo_buckets}`;
                                                 const itemKey2 = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
                                                 return selectedDown.has(itemKeyNew) && selectedTime.has(itemKey2) && teamSelected == item.posteam; })
