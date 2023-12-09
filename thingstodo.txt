@@ -1,8 +1,0 @@
-Here is a list of things to do:
-
-    1. Filter rectangles by team selected
-    2. Filter scatterplot by BOTH
-    3. Fix slowness
-    4. Axes/words
-    5. Background for downs?
-    6. 
