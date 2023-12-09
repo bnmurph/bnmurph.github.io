@@ -370,8 +370,8 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
 
                     if (selectedTime.size == 0 && teamSelected != 'none') {
                         if (selectedDown.size != 0) {
-                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
-                                                return d.posteam == teamSelected && selectedDown.has(itemKey); })
+                            dots.filter(item => { const itemKey = `${item.down}_${item.ydstogo_buckets}`;
+                                                return item.posteam == teamSelected && selectedDown.has(itemKey); })
                                 .attr("r", 3);
                             isDownSelected = false;
                         }
@@ -382,7 +382,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     }
                     else if (selectedTime.size == 0) {
                         if (selectedDown.size != 0) {
-                            dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
+                            dots.filter(item => { const itemKey = `${item.down}_${item.ydstogo_buckets}`;
                                             return selectedDown.has(itemKey); })
                             .attr("r",3);
                             isDownSelected = false;
@@ -571,7 +571,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
                     if (selectedDown.size == 0 && teamSelected != 'none') {
                         if (selectedTime.size != 0) {
                             dots.filter(item => { const itemKey = `${item.score_differential_buckets}_${item.half_minutes_remaining}`;
-                                                return d.posteam == teamSelected && selectedTime.has(itemKey); })
+                                                return item.posteam == teamSelected && selectedTime.has(itemKey); })
                                 .attr("r", 3);
                             isDownSelected = false;
                         }
