@@ -257,23 +257,12 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         var xAxisTime = svgTime.append("g")
                 .call(xAxisGenTime)
                 .style("transform", `translate(${dimensions.rect_length/2}px,${dimensions.height-dimensions.margin.bottom+dimensions.rect_length}px)`)
-                .on('mouseover', function(event,d){
-                    d3.select(this).style('cursor', 'pointer')
-                })
-                .on('mouseout', function(event,d){
-                    d3.select(this).style('cursor', 'auto')
-                })
+
 
         var yAxisGenTime = d3.axisLeft().scale(yScaleTime).tickValues([-35, -28, -21, -14, -7,0,7,14,21,28,35])
         var yAxisTime = svgTime.append("g")
                 .call(yAxisGenTime)
                 .style("transform", `translate(${dimensions.margin.left}px, ${dimensions.rect_length/2}px)`)
-                .on('mouseover', function(event,d){
-                    d3.select(this).style('cursor', 'pointer')
-                })
-                .on('mouseout', function(event,d){
-                    d3.select(this).style('cursor', 'auto')
-                })
 
 
         var selectedTime = new Set();
@@ -457,12 +446,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         var xAxisDowns = downs_svg.append("g")
                 .call(xAxisGenDowns)
                 .style("transform", `translate(${downDimensions.rectLength/2}px, ${downDimensions.height-downDimensions.margin.bottom-downDimensions.rectLength}px)`)
-                .on('mouseover', function(event,d){
-                    d3.select(this).style('cursor', 'pointer')
-                })
-                .on('mouseout', function(event,d){
-                    d3.select(this).style('cursor', 'auto')
-                })
+
 
         var newScaleDowns = d3.scaleBand()
         .domain(downsLabel)
@@ -473,14 +457,7 @@ d3.csv('2018-2022_nflfastR_clean.csv').then(
         var yAxisDowns = downs_svg.append("g")
                 .call(yAxisGenDowns)
                 .style("transform", `translate(${downDimensions.margin.left}px, ${-downDimensions.rectLength}px)`)
-                .on('mouseover', function(event,d){
-                    console.log(event)
-                    console.log(d)
-                    d3.select(this).style('cursor', 'pointer')
-                })
-                .on('mouseout', function(event,d){
-                    d3.select(this).style('cursor', 'auto')
-                })
+
 
         //Set scale for x-axis
         var xScaleLegend = d3.scaleLinear()
